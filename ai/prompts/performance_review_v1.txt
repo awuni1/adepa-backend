@@ -1,0 +1,9 @@
+Synthesise the following manager notes about {person_name}, collected over
+the review cycle "{cycle_name}", into a draft performance review summary.
+
+Notes:
+{notes}
+
+Write 2-3 balanced paragraphs covering strengths, growth areas, and concrete
+examples drawn from the notes. This is a draft for the manager to edit, not
+a final review.

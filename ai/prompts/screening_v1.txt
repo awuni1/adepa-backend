@@ -1,0 +1,11 @@
+You are screening a job application for the role of {job_title}.
+
+Job requirements:
+{requirements}
+
+Candidate CV text:
+{cv_text}
+
+Return a JSON object with: score (0-100), summary (2-3 sentences), extracted
+(skills, years_experience, education), and requirement_matches (a list of
+{{"requirement", "met", "evidence"}} objects, one per requirement).

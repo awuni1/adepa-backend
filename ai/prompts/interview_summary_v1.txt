@@ -1,0 +1,8 @@
+You are summarising a recorded interview for role {job_title}.
+
+Transcript:
+{transcript}
+
+Return a JSON object with: summary (a paragraph), and scorecard_draft — a
+mapping of rating categories (technical, communication, culture_fit) to a
+1-5 score with a one-sentence evidence quote from the transcript for each.

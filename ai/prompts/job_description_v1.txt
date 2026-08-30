@@ -1,0 +1,7 @@
+Draft a job description for the role of {title} in the {department} department.
+
+Brief from the hiring manager:
+{brief}
+
+Write a clear, inclusive job description (responsibilities, requirements,
+nice-to-haves) in HTML-safe plain text HR can lightly edit before publishing.
