@@ -135,13 +135,14 @@ AGORA_WEBHOOK_SECRET = env("AGORA_WEBHOOK_SECRET", default="")
 PAYSTACK_SECRET_KEY = env("PAYSTACK_SECRET_KEY", default="")
 PAYSTACK_PUBLIC_KEY = env("PAYSTACK_PUBLIC_KEY", default="")
 
-# Gemini (§9). Alias names ("-latest") track Google's current recommended
-# model instead of a pinned version, so a deprecation doesn't require a
-# code change every time — gemini-2.5-flash/-pro were retired for new
-# API keys shortly after this was first written.
-GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
-GEMINI_FLASH_MODEL = "gemini-flash-latest"
-GEMINI_PRO_MODEL = "gemini-pro-latest"
+# Groq (§9). Switched from Gemini after the Gemini key's project turned out
+# to have zero pro-model quota (free tier) and the flash model was hitting
+# persistent 503s — see chat history for the diagnostic that found this.
+# "llama-3.3-70b-versatile" (the model this was first wired up with) has since
+# been retired from this key's catalog (404 model_not_found) — verified against
+# GET /openai/v1/models and swapped for gpt-oss-120b, live-tested working below.
+GROQ_API_KEY = env("GROQ_API_KEY", default="")
+GROQ_MODEL = "openai/gpt-oss-120b"
 
 # Resend, via its SMTP relay — so notifications/tasks.py's existing send_mail()
 # call actually delivers instead of silently no-op'ing (fail_silently=True was

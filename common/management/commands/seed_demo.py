@@ -269,7 +269,7 @@ class Command(BaseCommand):
                         "summary": f"Strong candidate for {job_title} with relevant experience.",
                         "extracted": {"skills": ["communication", "teamwork"], "years_experience": random.randint(1, 6)},
                         "requirement_matches": [{"requirement": r, "met": True, "evidence": "Mentioned in CV"} for r in job.requirements[:2]],
-                        "model_used": "gemini-flash-latest", "prompt_version": "v1",
+                        "model_used": "openai/gpt-oss-120b", "prompt_version": "v1",
                     },
                 )
 

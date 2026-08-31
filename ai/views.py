@@ -47,7 +47,7 @@ class JobDescriptionDraftView(APIView):
 
 class InterviewSlotSuggestionView(APIView):
     """Smart scheduling suggestions (§7.2, §9.8). Kept as a simple
-    availability-overlap heuristic — swap in a Gemini call once real
+    availability-overlap heuristic — swap in a Groq call once real
     calendars/availability data exists to reason over."""
 
     permission_classes = [permissions.IsAuthenticated]

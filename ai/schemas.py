@@ -1,4 +1,4 @@
-"""JSON schemas for Gemini's structured output (§5, ai/schemas.py). Passed as
+"""JSON schemas for Groq's structured output (§5, ai/schemas.py). Passed as
 response_schema so screening/interview-summary calls return parseable JSON
 rather than free text."""
 

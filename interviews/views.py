@@ -164,7 +164,7 @@ class MyUpcomingInterviewsView(viewsets.ReadOnlyModelViewSet):
 
 class AgoraWebhookView(APIView):
     """Receives Agora's cloud-recording-complete webhook; downstream Celery task
-    pulls the file and sends it to Gemini for transcription (§8.6)."""
+    pulls the file and sends it to Groq for transcription (§8.6)."""
 
     permission_classes = [permissions.AllowAny]
     authentication_classes = []

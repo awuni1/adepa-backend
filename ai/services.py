@@ -1,11 +1,11 @@
-"""Service layer Gemini calls (§2.2, §9): modules call these functions, never
+"""Service layer Groq calls (§2.2, §9): modules call these functions, never
 the SDK directly, so prompt versioning and model choice live in one place."""
 
 import json
 
 from django.conf import settings
 
-from .client import gemini_client, load_prompt
+from .client import groq_client, load_prompt
 from .schemas import INTERVIEW_SUMMARY_SCHEMA, SCREENING_SCHEMA
 
 SCREENING_PROMPT_VERSION = "v1"
@@ -22,8 +22,8 @@ def screen_resume(application) -> dict:
         requirements="\n".join(f"- {r}" for r in application.job.requirements),
         cv_text=cv_text,
     )
-    raw = gemini_client.generate(
-        prompt, model=settings.GEMINI_FLASH_MODEL, feature="screening", response_schema=SCREENING_SCHEMA
+    raw = groq_client.generate(
+        prompt, model=settings.GROQ_MODEL, feature="screening", response_schema=SCREENING_SCHEMA
     )
     data = json.loads(raw)
 
@@ -34,7 +34,7 @@ def screen_resume(application) -> dict:
             "summary": data["summary"],
             "extracted": data["extracted"],
             "requirement_matches": data["requirement_matches"],
-            "model_used": settings.GEMINI_FLASH_MODEL,
+            "model_used": settings.GROQ_MODEL,
             "prompt_version": SCREENING_PROMPT_VERSION,
         },
     )
@@ -44,29 +44,30 @@ def screen_resume(application) -> dict:
 
 
 def summarise_interview(session) -> dict:
-    """Interview transcription/summary uses Gemini's native audio input
-    (§3, no separate speech-to-text service required)."""
+    """Interview transcription/summary: Groq has no native audio-input chat
+    mode like Gemini did, so the recording is transcribed separately first
+    (§3) via Groq's Whisper endpoint, then the transcript is summarised."""
     from .models import InterviewArtifact
 
     audio_bytes = session.recording_file.read() if session.recording_file else b""
+    transcript = groq_client.transcribe_audio(audio_bytes) if audio_bytes else ""
     prompt = load_prompt("interview_summary_v1.txt").format(
         job_title=session.application.job.title if session.application else session.title,
-        transcript="[transcribed from attached audio]",
+        transcript=transcript or "[no recording attached]",
     )
-    files = [{"mime_type": "audio/mp4", "data": audio_bytes}] if audio_bytes else []
-    raw = gemini_client.generate(
-        prompt, model=settings.GEMINI_PRO_MODEL, feature="interview_summary",
-        response_schema=INTERVIEW_SUMMARY_SCHEMA, files=files,
+    raw = groq_client.generate(
+        prompt, model=settings.GROQ_MODEL, feature="interview_summary",
+        response_schema=INTERVIEW_SUMMARY_SCHEMA,
     )
     data = json.loads(raw)
 
     artifact, _ = InterviewArtifact.objects.update_or_create(
         session=session,
         defaults={
-            "transcript": data.get("transcript", ""),
+            "transcript": data.get("transcript") or transcript,
             "summary": data["summary"],
             "scorecard_draft": data["scorecard_draft"],
-            "model_used": settings.GEMINI_PRO_MODEL,
+            "model_used": settings.GROQ_MODEL,
         },
     )
     return artifact
@@ -74,7 +75,7 @@ def summarise_interview(session) -> dict:
 
 def draft_job_description(title: str, department: str, brief: str) -> str:
     prompt = load_prompt("job_description_v1.txt").format(title=title, department=department, brief=brief)
-    return gemini_client.generate(prompt, model=settings.GEMINI_FLASH_MODEL, feature="jd")
+    return groq_client.generate(prompt, model=settings.GROQ_MODEL, feature="jd")
 
 
 def draft_performance_review(review) -> str:
@@ -84,7 +85,7 @@ def draft_performance_review(review) -> str:
         cycle_name=review.cycle.name,
         notes=notes or "(no notes logged)",
     )
-    return gemini_client.generate(prompt, model=settings.GEMINI_PRO_MODEL, feature="performance_review")
+    return groq_client.generate(prompt, model=settings.GROQ_MODEL, feature="performance_review")
 
 
 def chat_reply(person, message: str, session) -> str:
@@ -96,7 +97,7 @@ def chat_reply(person, message: str, session) -> str:
         person_name=f"{person.first_name} {person.last_name}", context=context
     )
     prompt = f"{system}\n\nQuestion: {message}"
-    reply = gemini_client.generate(prompt, model=settings.GEMINI_FLASH_MODEL, feature="chatbot")
+    reply = groq_client.generate(prompt, model=settings.GROQ_MODEL, feature="chatbot")
 
     session.messages.append({"role": "user", "content": message})
     session.messages.append({"role": "assistant", "content": reply})
