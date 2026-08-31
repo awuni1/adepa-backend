@@ -40,13 +40,18 @@ class Application(TimeStampedModel):
         REJECTED = "rejected"
         WITHDRAWN = "withdrawn"
 
-    # Legal stage transitions enforced server-side (§7.1)
+    # Legal stage transitions enforced server-side (§7.1). One step back
+    # through the live pipeline is allowed too (e.g. an accidental advance,
+    # or an interview that needs another screening pass) — but HIRED and
+    # REJECTED/WITHDRAWN stay terminal on purpose: un-hiring has real
+    # downstream effects (hire() already created a real Employment record),
+    # so that needs its own deliberate action, not a stage-flag reversal.
     TRANSITIONS = {
         Stage.RECEIVED: {Stage.SCREENING, Stage.REJECTED, Stage.WITHDRAWN},
-        Stage.SCREENING: {Stage.SHORTLISTED, Stage.REJECTED, Stage.WITHDRAWN},
-        Stage.SHORTLISTED: {Stage.INTERVIEW, Stage.REJECTED, Stage.WITHDRAWN},
-        Stage.INTERVIEW: {Stage.OFFER, Stage.REJECTED, Stage.WITHDRAWN},
-        Stage.OFFER: {Stage.HIRED, Stage.REJECTED, Stage.WITHDRAWN},
+        Stage.SCREENING: {Stage.SHORTLISTED, Stage.RECEIVED, Stage.REJECTED, Stage.WITHDRAWN},
+        Stage.SHORTLISTED: {Stage.INTERVIEW, Stage.SCREENING, Stage.REJECTED, Stage.WITHDRAWN},
+        Stage.INTERVIEW: {Stage.OFFER, Stage.SHORTLISTED, Stage.REJECTED, Stage.WITHDRAWN},
+        Stage.OFFER: {Stage.HIRED, Stage.INTERVIEW, Stage.REJECTED, Stage.WITHDRAWN},
         Stage.HIRED: set(),
         Stage.REJECTED: set(),
         Stage.WITHDRAWN: set(),

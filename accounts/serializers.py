@@ -12,11 +12,32 @@ class MeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "role", "organisation", "person_id"]
+        fields = [
+            "id", "username", "email", "first_name", "last_name", "role", "organisation",
+            "person_id", "must_change_password",
+        ]
 
     def get_person_id(self, obj):
         person = getattr(obj, "person", None)
         return person.id if person else None
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, validators=[validate_password])
+
+    def validate_current_password(self, value):
+        user = self.context["request"].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Current password is incorrect.")
+        return value
+
+    def save(self):
+        user = self.context["request"].user
+        user.set_password(self.validated_data["new_password"])
+        user.must_change_password = False
+        user.save(update_fields=["password", "must_change_password"])
+        return user
 
 
 class CandidateRegisterSerializer(serializers.Serializer):

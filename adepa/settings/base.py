@@ -143,6 +143,28 @@ GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
 GEMINI_FLASH_MODEL = "gemini-flash-latest"
 GEMINI_PRO_MODEL = "gemini-pro-latest"
 
+# Resend, via its SMTP relay — so notifications/tasks.py's existing send_mail()
+# call actually delivers instead of silently no-op'ing (fail_silently=True was
+# masking that no backend was configured at all). Falls back to Django's
+# console backend when no key is set, so local dev without a key still works.
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if env("RESEND_API_KEY", default="")
+    else "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = "smtp.resend.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "resend"
+EMAIL_HOST_PASSWORD = env("RESEND_API_KEY", default="")
+EMAIL_TIMEOUT = 15  # Django's SMTP backend blocks forever by default otherwise
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Adepa HR <onboarding@resend.dev>")
+
+# Where the frontend actually lives — used to build real links (e.g. "join
+# your interview") inside transactional emails, since the API has no other
+# way to know the SPA's own origin.
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
+
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
 REST_FRAMEWORK = {

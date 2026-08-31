@@ -55,13 +55,30 @@ class InterviewSessionViewSet(OrgScopedViewSet):
             duration_minutes=data["duration_minutes"],
             recording_enabled=data["recording_enabled"],
         )
-        for i, person_id in enumerate(data["participant_person_ids"], start=1):
-            InterviewParticipant.objects.create(
-                session=session,
-                person_id=person_id,
-                role=InterviewParticipant.Role.HOST if i == 1 else InterviewParticipant.Role.ATTENDEE,
-                agora_uid=i,
+
+        # The candidate's person id is always first in participant_person_ids
+        # for an interview (see ScheduleForm on the frontend), but nothing
+        # previously tagged them as Role.CANDIDATE — they just got lumped in
+        # as HOST, which meant nothing downstream (e.g. "who do we email the
+        # invite to?") could actually identify the candidate.
+        candidate_person_id = None
+        if data["kind"] == InterviewSession.Kind.INTERVIEW and data.get("application_id"):
+            from recruitment.models import Application
+
+            candidate_person_id = str(
+                Application.objects.values_list("person_id", flat=True).get(id=data["application_id"])
             )
+
+        host_assigned = False
+        for i, person_id in enumerate(data["participant_person_ids"], start=1):
+            if candidate_person_id and str(person_id) == candidate_person_id:
+                role = InterviewParticipant.Role.CANDIDATE
+            elif not host_assigned:
+                role = InterviewParticipant.Role.HOST
+                host_assigned = True
+            else:
+                role = InterviewParticipant.Role.ATTENDEE
+            InterviewParticipant.objects.create(session=session, person_id=person_id, role=role, agora_uid=i)
         emit("interview.scheduled", {"session_id": str(session.id)})
         return Response(InterviewSessionSerializer(session).data, status=status.HTTP_201_CREATED)
 

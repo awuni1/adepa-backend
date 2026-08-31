@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.utils.text import slugify
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -32,7 +33,7 @@ class PublicJobPostingListView(generics.ListAPIView):
     search_fields = ["title", "description"]
 
     def get_queryset(self):
-        return JobPosting.objects.filter(status=JobPosting.Status.OPEN)
+        return JobPosting.objects.filter(status=JobPosting.Status.OPEN).select_related("department")
 
 
 class PublicJobPostingDetailView(generics.RetrieveAPIView):
@@ -41,7 +42,7 @@ class PublicJobPostingDetailView(generics.RetrieveAPIView):
     lookup_field = "slug"
 
     def get_queryset(self):
-        return JobPosting.objects.filter(status=JobPosting.Status.OPEN)
+        return JobPosting.objects.filter(status=JobPosting.Status.OPEN).select_related("department")
 
 
 class ApplyForJobView(generics.CreateAPIView):
@@ -72,7 +73,17 @@ class JobPostingViewSet(OrgScopedViewSet):
     search_fields = ["title"]
 
     def perform_create(self, serializer):
-        serializer.save(organisation=self.request.user.organisation, created_by=self.request.user)
+        # slug isn't collected by the "New posting" form — it's a public-URL
+        # identifier, not something HR should have to think about — so it's
+        # derived from the title here, with a numeric suffix on collision
+        # (slug is globally unique, not just per-organisation).
+        base_slug = slugify(serializer.validated_data["title"]) or "role"
+        slug = base_slug
+        suffix = 1
+        while JobPosting.objects.filter(slug=slug).exists():
+            suffix += 1
+            slug = f"{base_slug}-{suffix}"
+        serializer.save(organisation=self.request.user.organisation, created_by=self.request.user, slug=slug)
 
     @action(detail=True, methods=["post"])
     def publish(self, request, pk=None):

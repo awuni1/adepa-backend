@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f4f5; font-family:-apple-system,Helvetica,Arial,sans-serif; color:#17181a;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5; padding:32px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#fbfbfc; border-radius:12px; overflow:hidden;">
+            <tr>
+              <td style="padding:32px 32px 24px;">
+                <p style="margin:0 0 4px; font-size:12px; letter-spacing:0.04em; text-transform:uppercase; color:#767a82;">Adepa HR</p>
+                <h1 style="margin:0; font-size:22px; font-weight:600;">Welcome to Adepa</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 32px 24px; font-size:14px; line-height:1.6;">
+                <p style="margin:0 0 16px;">Hi {{ first_name }},</p>
+                <p style="margin:0 0 16px;">
+                  {% if job_title %}You've been hired as <strong>{{ job_title }}</strong>, starting {{ start_date_display }}.{% else %}You've been hired, starting {{ start_date_display }}.{% endif %}
+                  Your Adepa HR account is ready.
+                </p>
+                {% if temp_password %}
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5; border-radius:8px; margin-bottom:16px;">
+                  <tr>
+                    <td style="padding:16px 20px;">
+                      <p style="margin:0 0 4px; color:#767a82; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;">Login email</p>
+                      <p style="margin:0 0 12px;">{{ login_email }}</p>
+                      <p style="margin:0 0 4px; color:#767a82; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;">Temporary password</p>
+                      <p style="margin:0; font-family:ui-monospace,Menlo,monospace; font-size:16px;">{{ temp_password }}</p>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 24px; color:#767a82; font-size:12px;">You'll be asked to set your own password the first time you sign in.</p>
+                {% endif %}
+                <p style="margin:0;">
+                  <a href="{{ login_url }}" style="display:inline-block; background:#17181a; color:#ffffff; text-decoration:none; padding:10px 20px; border-radius:999px; font-size:14px; font-weight:500;">Sign in</a>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 32px; border-top:1px solid #e5e5e7; font-size:12px; color:#767a82;">
+                Adepa HR — you're receiving this because a hiring decision was recorded for you.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

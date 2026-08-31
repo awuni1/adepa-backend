@@ -34,9 +34,15 @@ class Announcement(TimeStampedModel):
     title = models.CharField(max_length=200)
     body = models.TextField()
     created_by = models.ForeignKey("accounts.User", null=True, on_delete=models.SET_NULL)
+    is_pinned = models.BooleanField(default=False)
+    # Null = all staff. Real department-based targeting; there's no separate
+    # "office/location" model to target by, so that axis isn't supported.
+    department = models.ForeignKey(
+        "orgs.Department", null=True, blank=True, on_delete=models.SET_NULL, related_name="announcements"
+    )
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-is_pinned", "-created_at"]
 
     def __str__(self):
         return self.title

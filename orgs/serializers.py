@@ -16,10 +16,21 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.SerializerMethodField()
+    department_name = serializers.CharField(source="department.name", read_only=True, default=None)
+
     class Meta:
         model = Announcement
-        fields = ["id", "organisation", "title", "body", "created_by", "created_at"]
+        fields = [
+            "id", "organisation", "title", "body", "created_by", "created_by_name",
+            "is_pinned", "department", "department_name", "created_at",
+        ]
         read_only_fields = ["organisation", "created_by"]
+
+    def get_created_by_name(self, obj):
+        if not obj.created_by:
+            return None
+        return obj.created_by.get_full_name() or obj.created_by.username
 
 
 class PolicyDocumentSerializer(serializers.ModelSerializer):

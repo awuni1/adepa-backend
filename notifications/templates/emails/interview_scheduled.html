@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f4f5; font-family:-apple-system,Helvetica,Arial,sans-serif; color:#17181a;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5; padding:32px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#fbfbfc; border-radius:12px; overflow:hidden;">
+            <tr>
+              <td style="padding:32px 32px 24px;">
+                <p style="margin:0 0 4px; font-size:12px; letter-spacing:0.04em; text-transform:uppercase; color:#767a82;">Adepa HR</p>
+                <h1 style="margin:0; font-size:22px; font-weight:600;">Your interview is scheduled</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 32px 24px; font-size:14px; line-height:1.6;">
+                <p style="margin:0 0 16px;">Hi {{ candidate_name }},</p>
+                <p style="margin:0 0 16px;">
+                  {% if job_title %}Your interview for <strong>{{ job_title }}</strong>{% else %}Your interview{% endif %}
+                  has been scheduled. Here are the details:
+                </p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5; border-radius:8px; margin-bottom:16px;">
+                  <tr>
+                    <td style="padding:16px 20px;">
+                      <p style="margin:0 0 8px;"><strong>{{ title }}</strong></p>
+                      <p style="margin:0 0 4px; color:#4a4d52;">{{ scheduled_at_display }}</p>
+                      <p style="margin:0; color:#4a4d52;">{{ duration_minutes }} minutes</p>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;">Join from this device at the scheduled time — no download needed:</p>
+                <p style="margin:0 0 24px;">
+                  <a href="{{ join_url }}" style="display:inline-block; background:#17181a; color:#ffffff; text-decoration:none; padding:10px 20px; border-radius:999px; font-size:14px; font-weight:500;">Join interview</a>
+                </p>
+                <p style="margin:0; color:#767a82; font-size:12px;">If the button doesn't work, copy this link: {{ join_url }}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 32px; border-top:1px solid #e5e5e7; font-size:12px; color:#767a82;">
+                Adepa HR — you're receiving this because you applied for a role with us.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

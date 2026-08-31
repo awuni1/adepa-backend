@@ -39,7 +39,7 @@ class ReadForOrgWriteForHRMixin:
 
 class AnnouncementViewSet(ReadForOrgWriteForHRMixin, OrgScopedViewSet):
     serializer_class = AnnouncementSerializer
-    queryset = Announcement.objects.all()
+    queryset = Announcement.objects.select_related("created_by", "department")
 
     def perform_create(self, serializer):
         serializer.save(organisation=self.request.user.organisation, created_by=self.request.user)
